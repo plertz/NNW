@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+//extra comment
 
 class Network{
     constructor(inputneurons, hiddenneurons, hiddenneurons2, outputneurons){
