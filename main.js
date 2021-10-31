@@ -79,7 +79,7 @@ class Network{
             console.log(this.error(expected, output[output.length - 1]));
             weights = backpropagate(expected, output, weights, learning_rate) 
         }  
-        let error = this.error(expected[0], output[output.length - 1])
+        let error = this.error(expected, output[output.length - 1])
         let data = JSON.stringify(weights, null, 1)
         fs.writeFile('new_weights.json', data, (err) => {
             if (err) {
@@ -87,7 +87,7 @@ class Network{
             }
         });
         
-        function backpropagate(expected, output, weights, learningrate) {
+        function backpropagate(expected, output, weights, learning_rate) {
             var new_weights = []; 
             //layers
             for (let i = weights.length - 1; i > -1; i--) {
