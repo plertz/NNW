@@ -73,33 +73,71 @@ class Network{
         return total;
     }
     train(input, expected, weights, learning_rate, iters){
-        for (let i = 0; i < iters.length; i++) {
+        let output;
+        for (let i = 0; i < iters; i++) {
             output = this.forward(input, weights)
-            backpropagate(expected, output, weights, learning_rate)
-        }
-       
+            console.log(this.error(expected, output[output.length - 1]));
+            weights = backpropagate(expected, output, weights, learning_rate) 
+        }  
+        let error = this.error(expected, output[output.length - 1])
+        let data = JSON.stringify(weights, null, 1)
+        fs.writeFile('new_weights.json', data, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
+        
         function backpropagate(expected, output, weights, learningrate) {
-            let new_weights = [];        
+            var new_weights = []; 
             //layers
-            for (let i = weights.length - 1; i < 0; i--) {
+            for (let i = weights.length - 1; i > -1; i--) {
+                new_weights[i] = []
                 if (i != weights.length -1) {
                      //neurons in hidden layers
                      for (let j = 0; j < weights[i].length; j++) {
+                        new_weights[i][j] = []
+                        let total = 0;
+                        for (let l = 0; l < weights[i + 1].length; l++) {
+                            total += new_weights[i + 1][l][j] * weights[i+1][l][j]
+                        }
                         for (let k = 0; k < weights[i][j].length; k++) {
-                           new_weights[i][j][k] = delta_weight * slope_sigmoid(output[i+1][j]);
+                           new_weights[i][j][k] = slope_sigmoid(output[i+1][j]) * total;
                         }
                     }
                 }
                 else{
                     //neurons in output
                     for (let j = 0; j < weights[i].length; j++) {
+                        new_weights[i][j] = []
                         for (let k = 0; k < weights[i][j].length; k++) {
                            new_weights[i][j][k] = -(expected[j] - output[i+1][j]) * slope_sigmoid(output[i+1][j]);
                         }
                     }
                 }
+                
             }
+            //multiple the input of neuron
+            for (let m = 0; m < weights.length; m++) {
+                for (let n = 0; n < weights[m].length; n++) {
+                    for (let p = 0; p < weights[m][n].length - 1; p++) {
+                        new_weights[m][n][p] *= output[m][n]
+                    }
+                }
+                
+            }
+            //update the old weights
+            for (let m = 0; m < weights.length; m++) {
+                for (let n = 0; n < weights[m].length; n++) {
+                    for (let p = 0; p < weights[m][n].length; p++) {
+                        weights[m][n][p] = weights[m][n][p] - new_weights[m][n][p] * learning_rate
+                    }
+                }
+                
+            };
+            return weights;
+        
         }
+        return error
     }
 }
 function sigmoid(z) {  
@@ -112,9 +150,7 @@ function slope_sigmoid(z) {
 const x = [0.2333, 0.4656, 0.76769, 0.87975]
 const y = [0.2344, 0.999]
 network = new Network(4, 3, 0, 2);
-let out = network.forward(x, network.weights);
-console.log(out);
-console.log(network.error(y, out[out.length - 1]));
+console.log(network.train(x, y, network.weights, 0.1, 2000))
 
 // function forward(input, weights){
 //     //for elke layer vanaf hidden
