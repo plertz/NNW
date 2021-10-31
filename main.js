@@ -79,7 +79,7 @@ class Network{
             console.log(this.error(expected, output[output.length - 1]));
             weights = backpropagate(expected, output, weights, learning_rate) 
         }  
-        let error = this.error(expected, output[output.length - 1])
+        let error = this.error(expected[0], output[output.length - 1])
         let data = JSON.stringify(weights, null, 1)
         fs.writeFile('new_weights.json', data, (err) => {
             if (err) {
@@ -116,14 +116,14 @@ class Network{
                 }
                 
             }
-            //multiple the input of neuron
-            for (let m = 0; m < weights.length; m++) {
+            //multiple the input of neuron  
+            //doesn't work
+            for (let m = 0; m < weights.length; m++) {              
                 for (let n = 0; n < weights[m].length; n++) {
                     for (let p = 0; p < weights[m][n].length - 1; p++) {
-                        new_weights[m][n][p] *= output[m][n]
+                        new_weights[m][n][p] *= output[m][p]
                     }
                 }
-                
             }
             //update the old weights
             for (let m = 0; m < weights.length; m++) {
@@ -137,7 +137,7 @@ class Network{
             return weights;
         
         }
-        return error
+        return weights;
     }
 }
 function sigmoid(z) {  
@@ -150,26 +150,29 @@ function slope_sigmoid(z) {
 const x = [0.2333, 0.4656, 0.76769, 0.87975]
 const y = [0.2344, 0.999]
 network = new Network(4, 3, 0, 2);
-console.log(network.train(x, y, network.weights, 0.1, 2000))
+let trained = network.train(x, y, network.weights, 0.1, 1000)
+console.log(trained);
+console.log(forward(x, trained))
 
-// function forward(input, weights){
-//     //for elke layer vanaf hidden
-//     for (let i = 0; i < weights.length; i++) {
-//         //for elke neuron per layer
-//         let output = []
-//         for (let j = 0; j < weights[i].length; j++) {
-//             output[j] = outputNeuron(input, weights[i][j])
-//         }  
-//         input = output         
-//     }
-//     return input
-//     function outputNeuron(input, weights){
-//         let total = 0;;
-//         for (let i = 0; i < weights.length - 1; i++){
-//             total += weights[i] * input[i];;
-//         }
-//         total += weights[weights.length -1];
-//         total = sigmoid(total);
-//         return total;
-//     }
-// }
+
+function forward(input, weights){
+    //for elke layer vanaf hidden
+    for (let i = 0; i < weights.length; i++) {
+        //for elke neuron per layer
+        let output = []
+        for (let j = 0; j < weights[i].length; j++) {
+            output[j] = outputNeuron(input, weights[i][j])
+        }  
+        input = output         
+    }
+    return input
+    function outputNeuron(input, weights){
+        let total = 0;;
+        for (let i = 0; i < weights.length - 1; i++){
+            total += weights[i] * input[i];;
+        }
+        total += weights[weights.length -1];
+        total = sigmoid(total);
+        return total;
+    }
+}
