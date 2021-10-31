@@ -1,1 +1,1 @@
-# Neural network in pure vanile JAVASCRIPT!!!!!!!!!!!!!!!!!
+# Neural network in pure vanilla JAVASCRIPT!!!!!!!!!!!!!!!!!
