@@ -75,11 +75,13 @@ class Network{
     train(input, expected, weights, learning_rate, iters){
         let output;
         for (let i = 0; i < iters; i++) {
-            output = this.forward(input, weights)
-            console.log(this.error(expected, output[output.length - 1]));
-            weights = backpropagate(expected, output, weights, learning_rate) 
+            for (let j = 0; j < input.length; j++) {
+                output = this.forward(input[j], weights)
+                console.log(this.error(expected[j], output[output.length - 1]));
+                weights = backpropagate(expected[j], output, weights, learning_rate)   
+            }
         }  
-        let error = this.error(expected, output[output.length - 1])
+        let error = this.error(expected[0], output[output.length - 1])
         let data = JSON.stringify(weights, null, 1)
         fs.writeFile('new_weights.json', data, (err) => {
             if (err) {
@@ -147,12 +149,12 @@ function slope_sigmoid(z) {
     return z * (1-z)
 }
 
-const x = [0.2333, 0.4656, 0.76769, 0.87975]
-const y = [0.2344, 0.999]
+const x = [[0.2333, 0.4656, 0.76769, 0.87975], [0.45453254, 0.434234, 0.43243, 0.93484]]
+const y = [[0.2344, 0.999], [0.348095835, 0.6448]]
 network = new Network(4, 3, 0, 2);
 let trained = network.train(x, y, network.weights, 0.1, 1000)
 console.log(trained);
-console.log(forward(x, trained))
+console.log(forward(x[0], trained))
 
 
 function forward(input, weights){
